@@ -1,7 +1,9 @@
 import {
+  createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
+  getAuth,
 } from "firebase/auth";
 
 import {APIResponse} from "@/types";
@@ -63,6 +65,34 @@ export async function signInWithEmail(
   } catch (error) {
     // Log the error for debugging purposes
     console.error("Error signing in with email and password", error);
+    return false;
+  }
+}
+
+export async function createAccountWithEmail(email: string, password: string) {
+  const auth = getAuth();
+
+  try {
+    const userCreds = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const idToken = await userCreds.user.getIdToken();
+
+    const response = await fetch("/api/auth/sign-up", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({idToken}),
+    });
+    const resBody = (await response.json()) as unknown as APIResponse<string>;
+    if (response.ok && resBody.success) {
+      return true;
+    } else return false;
+  } catch (error) {
+    console.error("Error creating account", error);
     return false;
   }
 }
