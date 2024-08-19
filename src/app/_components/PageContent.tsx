@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
-import { UserRecord } from "firebase-admin/auth";
-
-import { signInWithGoogle, signOut } from "@/lib/firebase/auth";
+import {useRouter} from "next/navigation";
+import {UserRecord} from "firebase-admin/auth";
+import {signInWithGoogle, signOut} from "@/lib/firebase/auth";
+import SignInPage from "@/app/_components/Signedin";
+import DashboardPage from "@/app/_components/Unsigned";
+import Navbar from "./Navbar";
 
 export default function PageContent({
   variant,
@@ -29,24 +30,20 @@ export default function PageContent({
 
   const buttonStyle = "bg-slate-500 mt-2 px-2 py-1 rounded-md text-slate-50";
 
-  if (variant === "sign-in")
+  if (variant === "sign-in") {
+    return <SignInPage handleSignIn={handleSignIn} buttonStyle={buttonStyle} />;
+  } else if (variant === "dashboard") {
     return (
       <>
-        <h1>Sing In Page</h1>
-        <button className={buttonStyle} onClick={handleSignIn}>
-          Sign In with Google
-        </button>
+        <DashboardPage
+          currentUser={currentUser}
+          handleSignOut={handleSignOut}
+          buttonStyle={buttonStyle}
+        />
+        <Navbar />
       </>
     );
-  else if (variant === "dashboard")
-    return (
-      <>
-        <h1>Dashboard Page</h1>
-        <p>Welcome, {currentUser?.displayName}</p>
-        <button className={buttonStyle} onClick={handleSignOut}>
-          Sign Out
-        </button>
-      </>
-    );
-  else return null;
+  } else {
+    return null;
+  }
 }
