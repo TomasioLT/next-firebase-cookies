@@ -1,7 +1,11 @@
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 
-import { APIResponse } from "@/types";
-import { auth } from "./firebase";
+import {APIResponse} from "@/types";
+import {auth} from "./firebase";
 
 export async function signInWithGoogle() {
   const provider = new GoogleAuthProvider();
@@ -15,7 +19,7 @@ export async function signInWithGoogle() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ idToken }),
+      body: JSON.stringify({idToken}),
     });
     const resBody = (await response.json()) as unknown as APIResponse<string>;
     if (response.ok && resBody.success) {
@@ -23,6 +27,42 @@ export async function signInWithGoogle() {
     } else return false;
   } catch (error) {
     console.error("Error signing in with Google", error);
+    return false;
+  }
+}
+
+export async function signInWithEmail(
+  email: string,
+  password: string
+): Promise<boolean> {
+  try {
+    // Sign in the user with email and password
+    const userCreds = await signInWithEmailAndPassword(auth, email, password);
+
+    // Get the ID token of the authenticated user
+    const idToken = await userCreds.user.getIdToken();
+
+    // Send the ID token to your backend for further validation or session management
+    const response = await fetch("/api/auth/sign-in", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({idToken}),
+    });
+
+    // Parse the response from the backend
+    const resBody = (await response.json()) as unknown as APIResponse<string>;
+
+    // Check if the response indicates success
+    if (response.ok && resBody.success) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    // Log the error for debugging purposes
+    console.error("Error signing in with email and password", error);
     return false;
   }
 }
