@@ -80,7 +80,7 @@ export async function createAccountWithEmail(email: string, password: string) {
     );
     const idToken = await userCreds.user.getIdToken();
 
-    const response = await fetch("/api/auth/sign-up", {
+    const response = await fetch("/api/auth/sign-in", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -11,8 +11,9 @@ import {
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {useRouter} from "next/navigation";
-import {createAccountWithEmail} from "@/lib/firebase/auth";
+import {createAccountWithEmail, signInWithGoogle} from "@/lib/firebase/auth";
 import {useState} from "react";
+import {toast} from "sonner";
 
 export default function Register() {
   const [email, setEmail] = useState<string>("");
@@ -20,13 +21,16 @@ export default function Register() {
 
   const router = useRouter();
   const handleGoogleSignIn = async () => {
-    const isOk = await createAccountWithEmail(email, password);
+    const isOk = await signInWithGoogle();
 
     if (isOk) router.push("/dashboard");
   };
-  const handleRegister = async () => {
+  const handleRegister = async (e: any) => {
+    e.preventDefault();
     const isOk = await createAccountWithEmail(email, password);
 
+    console.log("Email: ", email);
+    console.log("Password :", password);
     if (isOk) router.push("/dashboard");
   };
   return (
@@ -39,15 +43,15 @@ export default function Register() {
       </CardHeader>
       <CardContent>
         <div className="grid gap-3">
-          <form className="grid gap-2">
+          <form className="grid gap-2" onSubmit={handleRegister}>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="first-name">First name</Label>
-                <Input id="first-name" placeholder="Max" required />
+                <Input id="first-name" placeholder="Max" />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="last-name">Last name</Label>
-                <Input id="last-name" placeholder="Robinson" required />
+                <Input id="last-name" placeholder="Robinson" />
               </div>
             </div>
             <div className="grid gap-2">
@@ -67,15 +71,16 @@ export default function Register() {
               <Input
                 id="password"
                 type="password"
+                required
                 onChange={(e) => {
-                  setEmail(e.currentTarget.value);
+                  setPassword(e.currentTarget.value);
                 }}
               />
             </div>
+            <Button type="submit" className="w-full">
+              Create an account
+            </Button>
           </form>
-          <Button type="submit" className="w-full">
-            Create an account
-          </Button>
           <Button
             variant="outline"
             className="w-full"

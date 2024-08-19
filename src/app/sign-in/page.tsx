@@ -10,15 +10,22 @@ import {
 } from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
-import {signInWithGoogle} from "@/lib/firebase/auth";
+import {signInWithEmail, signInWithGoogle} from "@/lib/firebase/auth";
 import {useRouter} from "next/navigation";
+import {useState} from "react";
 
 export default function LoginForm() {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const router = useRouter();
-  const handleSignIn = async () => {
+  const handleGoogleSignIn = async () => {
     const isOk = await signInWithGoogle();
 
     if (isOk) router.push("/dashboard");
+  };
+  const handleSignIn = async (e: any) => {
+    e.preventDefault();
+    const isOK = await signInWithEmail(email, password);
   };
   return (
     <Card className="mx-auto max-w-sm">
@@ -30,15 +37,18 @@ export default function LoginForm() {
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
-          <div className="grid gap-2">
+          <form className="grid gap-4" onSubmit={handleSignIn}>
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="m@example.com"
               required
+              onChange={(e) => {
+                setEmail(e.currentTarget.value);
+              }}
             />
-          </div>
+          </form>
           <div className="grid gap-2">
             <div className="flex items-center">
               <Label htmlFor="password">Password</Label>
@@ -46,12 +56,19 @@ export default function LoginForm() {
                 Forgot your password?
               </Link>
             </div>
-            <Input id="password" type="password" required />
+            <Input
+              id="password"
+              type="password"
+              required
+              onChange={(e) => {
+                setPassword(e.currentTarget.value);
+              }}
+            />
           </div>
           <Button type="submit" className="w-full">
             Login
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" type="submit">
             Login with Google
           </Button>
         </div>
