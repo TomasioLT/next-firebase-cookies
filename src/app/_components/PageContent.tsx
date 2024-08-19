@@ -1,11 +1,12 @@
+// src/app/_components/PageContent.tsx
+
 "use client";
 
 import {useRouter} from "next/navigation";
+
 import {UserRecord} from "firebase-admin/auth";
-import {signInWithEmail, signInWithGoogle, signOut} from "@/lib/firebase/auth";
-import SignInPage from "@/app/_components/Signedin";
-import DashboardPage from "@/app/_components/Unsigned";
-import Navbar from "./Navbar";
+
+import {signInWithGoogle, signOut} from "@/lib/firebase/auth";
 
 export default function PageContent({
   variant,
@@ -16,13 +17,8 @@ export default function PageContent({
 }) {
   const router = useRouter();
 
-  const handleGoogleSignin = async () => {
-    const isOk = await signInWithGoogle();
-
-    if (isOk) router.push("/dashboard");
-  };
   const handleSignIn = async () => {
-    const isOk = await signInWithEmail();
+    const isOk = await signInWithGoogle();
 
     if (isOk) router.push("/dashboard");
   };
@@ -35,25 +31,24 @@ export default function PageContent({
 
   const buttonStyle = "bg-slate-500 mt-2 px-2 py-1 rounded-md text-slate-50";
 
-  if (variant === "sign-in") {
-    return (
-      <SignInPage
-        handleGoogleSignIn={handleGoogleSignin}
-        buttonStyle={buttonStyle}
-      />
-    );
-  } else if (variant === "dashboard") {
+  if (variant === "sign-in")
     return (
       <>
-        <DashboardPage
-          currentUser={currentUser}
-          handleSignOut={handleSignOut}
-          buttonStyle={buttonStyle}
-        />
-        <Navbar />
+        <h1>Sing In Page</h1>
+        <button className={buttonStyle} onClick={handleSignIn}>
+          Sign In with Google
+        </button>
       </>
     );
-  } else {
-    return null;
-  }
+  else if (variant === "dashboard")
+    return (
+      <>
+        <h1>Dashboard Page</h1>
+        <p>Welcome, {currentUser?.displayName}</p>
+        <button className={buttonStyle} onClick={handleSignOut}>
+          Sign Out
+        </button>
+      </>
+    );
+  else return null;
 }
